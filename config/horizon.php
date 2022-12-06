@@ -153,6 +153,8 @@ return [
 
     'memory_limit' => 64,
 
+    'connection' => 'horizon',
+
     /*
     |--------------------------------------------------------------------------
     | Queue Worker Configuration

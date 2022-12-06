@@ -6,6 +6,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Horizon\Connectors\SqsConnector;
 use Laravel\Horizon\Connectors\RedisConnector;
 
 class HorizonServiceProvider extends ServiceProvider
@@ -190,6 +191,10 @@ class HorizonServiceProvider extends ServiceProvider
         $this->callAfterResolving(QueueManager::class, function ($manager) {
             $manager->addConnector('redis', function () {
                 return new RedisConnector($this->app['redis']);
+            });
+
+            $manager->addConnector('sqs', function () {
+                return new SqsConnector();
             });
         });
     }

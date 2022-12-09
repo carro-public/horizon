@@ -176,7 +176,6 @@
                                 Parent Trace
                             </a>
                         </div>
-                        <div v-if="!job.dd_trace_id || job.dd_trace_id.toString() === '0'">N/A</div>
                     </div>
                 </div>
                 <div class="row mb-2">

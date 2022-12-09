@@ -100,21 +100,7 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
     {
         $payload = (new JobPayload($this->createPayload($job, $queue, $data)))->prepare($job)->value;
 
-        if (method_exists($this, 'enqueueUsing')) {
-            return $this->enqueueUsing(
-                $job,
-                $payload,
-                $queue,
-                $delay,
-                function ($payload, $queue, $delay) {
-                    return tap(parent::later($delay, $payload, $queue), function () use ($payload, $queue) {
-                        $this->event($this->getQueue($queue), new JobPushed($payload));
-                    });
-                }
-            );
-        }
-
-        return tap(parent::later($delay, $payload, $queue), function () use ($payload, $queue) {
+        return tap(parent::later($delay, $job, $data), function () use ($payload, $queue) {
             $this->event($this->getQueue($queue), new JobPushed($payload));
         });
     }

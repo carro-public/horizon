@@ -2,10 +2,20 @@
 
 namespace Laravel\Horizon\Jobs;
 
+use Aws\Sqs\SqsClient;
+use Illuminate\Container\Container;
 use Laravel\Horizon\Events\JobDeleted;
+use Laravel\Horizon\Events\JobReserved;
 
 class SqsJob extends \Illuminate\Queue\Jobs\SqsJob
 {
+    public function __construct(Container $container, SqsClient $sqs, array $job, $connectionName, $queue)
+    {
+        parent::__construct($container, $sqs, $job, $connectionName, $queue);
+
+        event(new JobReserved($this->getReservedJob()));
+    }
+
     public function delete()
     {
         parent::delete();

@@ -123,9 +123,10 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      * Pop the next job off of the queue.
      *
      * @param  string  $queue
-     * @return SqsJob
+     * @return \Illuminate\Contracts\Queue\Job|null
      */
-    public function parentPop($queue = null) {
+    public function pop($queue = null)
+    {
         $response = $this->sqs->receiveMessage([
             'QueueUrl' => $queue = $this->getQueue($queue),
             'AttributeNames' => ['ApproximateReceiveCount'],
@@ -137,22 +138,6 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
                 $this->connectionName, $queue
             ]);
         }
-    }
-
-    /**
-     * Pop the next job off of the queue.
-     *
-     * @param  string  $queue
-     * @return \Illuminate\Contracts\Queue\Job|null
-     */
-    public function pop($queue = null)
-    {
-        return tap($this->parentPop($queue), function ($result) use ($queue) {
-            /** @var \Laravel\Horizon\Jobs\SqsJob $result */
-            if ($result) {
-                $this->event($this->getQueue($queue), new JobReserved($result->getReservedJob()));
-            }
-        });
     }
 
     /**

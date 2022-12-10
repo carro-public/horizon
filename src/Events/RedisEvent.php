@@ -35,7 +35,7 @@ class RedisEvent
      */
     public function __construct($payload)
     {
-        $this->payload = new JobPayload($payload);
+        $this->payload = app()->make(JobPayload::class, [$payload]);
     }
 
     /**

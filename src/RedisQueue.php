@@ -64,7 +64,7 @@ class RedisQueue extends BaseQueue
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        $payload = (new JobPayload($payload))->prepare($this->lastPushed);
+        $payload = (app()->make(JobPayload::class, [$payload]))->prepare($this->lastPushed);
 
         parent::pushRaw($payload->value, $queue, $options);
 
@@ -101,7 +101,7 @@ class RedisQueue extends BaseQueue
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
-        $payload = (new JobPayload($this->createPayload($job, $queue, $data)))->prepare($job)->value;
+        $payload = (app()->make(JobPayload::class, [$this->createPayload($job, $queue, $data)]))->prepare($job)->value;
 
         if (method_exists($this, 'enqueueUsing')) {
             return $this->enqueueUsing(

@@ -61,7 +61,7 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        $payload = (new JobPayload($payload))->prepare($this->lastPushed);
+        $payload = (app()->make(JobPayload::class, [$payload]))->prepare($this->lastPushed);
 
         parent::pushRaw($payload->value, $queue, $options);
 
@@ -98,7 +98,7 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
-        $payload = (new JobPayload($this->createPayload($job, $queue, $data)))->prepare($job)->value;
+        $payload = (app()->make(JobPayload::class, [$this->createPayload($job, $queue, $data)]))->prepare($job)->value;
 
         return tap($this->laterRaw($delay, $job, $payload, $queue), function () use ($payload, $queue) {
             $this->event($this->getQueue($queue), new JobPushed($payload));

@@ -136,8 +136,6 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
     protected function event($queue, $event)
     {
         if ($this->container && $this->container->bound(Dispatcher::class)) {
-            $queue = Str::replaceFirst('queues:', '', $queue);
-
             $this->container->make(Dispatcher::class)->dispatch(
                 $event->connection($this->getConnectionName())->queue($queue)
             );

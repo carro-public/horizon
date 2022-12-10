@@ -20,7 +20,11 @@ class SqsJob extends \Illuminate\Queue\Jobs\SqsJob
     {
         parent::delete();
 
-        event(new JobDeleted($this, json_encode($this->payload())));
+        event(
+            (new JobDeleted($this, $this->getReservedJob()))
+                ->connection($this->getConnectionName())
+                ->queue($this->queue)
+        );
     }
 
     public function getReservedJob()

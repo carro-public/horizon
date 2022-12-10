@@ -100,9 +100,33 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
     {
         $payload = (new JobPayload($this->createPayload($job, $queue, $data)))->prepare($job)->value;
 
-        return tap(parent::later($delay, $job, $data), function () use ($payload, $queue) {
+        return tap($this->laterRaw($delay, $job, $payload, $queue), function () use ($payload, $queue) {
             $this->event($this->getQueue($queue), new JobPushed($payload));
         });
+    }
+
+    /**
+     * Push Raw Payload Data into SQS Queue
+     * @param $delay
+     * @param $job
+     * @param $payload
+     * @param $queue
+     * @return mixed
+     */
+    public function laterRaw($delay, $job, $payload, $queue = null) {
+        return $this->enqueueUsing(
+            $job,
+            $payload,
+            $queue,
+            $delay,
+            function ($payload, $queue, $delay) {
+                return $this->sqs->sendMessage([
+                    'QueueUrl' => $this->getQueue($queue),
+                    'MessageBody' => $payload,
+                    'DelaySeconds' => $this->secondsUntil($delay),
+                ])->get('MessageId');
+            }
+        );
     }
 
     /**

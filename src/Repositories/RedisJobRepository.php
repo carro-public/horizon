@@ -395,10 +395,6 @@ class RedisJobRepository implements JobRepository
         $this->connection()->pipeline(function ($pipe) use ($connection, $queue, $payload) {
             $this->storeJobReference($pipe, 'monitored_jobs', $payload);
 
-            logger()->debug('DD Trace Context', [
-                'value' => function_exists('\DDTrace\current_context') ? \DDTrace\current_context() : "Not Exist",
-            ]);
-
             $pipe->hmset(
                 $payload->id(), [
                     'id' => $payload->id(),
@@ -459,10 +455,6 @@ class RedisJobRepository implements JobRepository
         $this->connection()->pipeline(function ($pipe) use ($payload) {
             $this->storeJobReference($pipe, 'completed_jobs', $payload);
             $this->removeJobReference($pipe, 'pending_jobs', $payload);
-
-            logger()->debug('DD Trace Context', [
-                'value' => function_exists('\DDTrace\current_context') ? \DDTrace\current_context() : "Not Exist",
-            ]);
 
             $pipe->hmset(
                 $payload->id(), [
@@ -625,10 +617,6 @@ class RedisJobRepository implements JobRepository
             $this->storeJobReference($pipe, 'recent_failed_jobs', $payload);
             $this->removeJobReference($pipe, 'pending_jobs', $payload);
             $this->removeJobReference($pipe, 'completed_jobs', $payload);
-
-            logger()->debug('DD Trace Context', [
-                'value' => function_exists('\DDTrace\current_context') ? \DDTrace\current_context() : "Not Exist",
-            ]);
 
             $pipe->hmset(
                 $payload->id(), [

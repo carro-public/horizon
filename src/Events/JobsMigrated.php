@@ -36,7 +36,7 @@ class JobsMigrated
     public function __construct($payloads)
     {
         $this->payloads = collect($payloads)->map(function ($job) {
-            return new JobPayload($job);
+            return app()->make(JobPayload::class, [$job]);
         });
     }
 

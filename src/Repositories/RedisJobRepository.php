@@ -27,7 +27,7 @@ class RedisJobRepository implements JobRepository
     public $keys = [
         'id', 'connection', 'queue', 'name', 'status', 'payload',
         'exception', 'context', 'failed_at', 'completed_at', 'retried_by',
-        'reserved_at',
+        'reserved_at', 'dd_trace_id',
     ];
 
     /**
@@ -404,6 +404,9 @@ class RedisJobRepository implements JobRepository
                     'status' => 'completed',
                     'payload' => $payload->value,
                     'completed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
                 ]
             );
 
@@ -457,6 +460,9 @@ class RedisJobRepository implements JobRepository
                 $payload->id(), [
                     'status' => 'completed',
                     'completed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
                 ]
             );
 
@@ -625,6 +631,9 @@ class RedisJobRepository implements JobRepository
                         ? json_encode($exception->context())
                         : null,
                     'failed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
                 ]
             );
 
@@ -718,6 +727,6 @@ class RedisJobRepository implements JobRepository
      */
     protected function connection()
     {
-        return $this->redis->connection('horizon');
+        return $this->redis->connection(config('horizon.connection'));
     }
 }

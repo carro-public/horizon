@@ -40,6 +40,7 @@ trait EventMap
         \Illuminate\Queue\Events\JobFailed::class => [
             Listeners\ForgetJobTimer::class,
             Listeners\MarshalFailedEvent::class,
+            Listeners\MarshalSqsFailedEvent::class
         ],
 
         Events\JobFailed::class => [

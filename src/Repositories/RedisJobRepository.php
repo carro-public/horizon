@@ -404,6 +404,9 @@ class RedisJobRepository implements JobRepository
                     'status' => 'completed',
                     'payload' => $payload->value,
                     'completed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
                 ]
             );
 
@@ -457,6 +460,9 @@ class RedisJobRepository implements JobRepository
                 $payload->id(), [
                     'status' => 'completed',
                     'completed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
                 ]
             );
 
@@ -626,7 +632,7 @@ class RedisJobRepository implements JobRepository
                         : null,
                     'failed_at' => str_replace(',', '.', microtime(true)),
                     'dd_trace_id' => function_exists('\DDTrace\current_context')
-                        ? 10000
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
                         : null
                 ]
             );

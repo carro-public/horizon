@@ -172,7 +172,7 @@
                         <div>
                             <a target="_blank" :href="'https://app.datadoghq.com/apm/trace/' + job.dd_trace_id" v-if="job.dd_trace_id && job.dd_trace_id.toString() !== '0'">
                                 Root Trace
-                            </a> | <a target="_blank" :href="'https://app.datadoghq.com/apm/trace/' + job.payload.data.datadog.trace_id" v-if="job.payload.data.datadog.trace_id">
+                            </a> | <a target="_blank" :href="'https://app.datadoghq.com/apm/trace/' + job.payload.data.datadog.trace_id" v-if="job.payload.data.datadog.trace_id && job.payload.data.datadog.trace_id.toString() !== '0'">
                                 Parent Trace
                             </a>
                         </div>

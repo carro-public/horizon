@@ -90,6 +90,7 @@ class JobPayload implements ArrayAccess
             'type' => $this->determineType($job),
             'tags' => $this->determineTags($job),
             'pushedAt' => str_replace(',', '.', microtime(true)),
+            'shouldSkipMarkAsCompleted' => method_exists($job, 'shouldSkipMarkAsCompleted') ? $job->shouldSkipMarkAsCompleted() : false,
         ]);
     }
 

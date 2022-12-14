@@ -471,6 +471,18 @@ class RedisJobRepository implements JobRepository
     }
 
     /**
+     * Remove a job payload from pending_jobs
+     * @param JobPayload $payload
+     * @return void
+     */
+    public function removeJobFromPending(JobPayload $payload)
+    {
+        $this->connection()->pipeline(function ($pipe) use ($payload) {
+            $this->removeJobReference($pipe, 'pending_jobs', $payload);
+        });
+    }
+
+    /**
      * Update the retry status of a job's parent.
      *
      * @param  \Laravel\Horizon\JobPayload  $payload

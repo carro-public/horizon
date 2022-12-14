@@ -164,6 +164,13 @@ interface JobRepository
     public function completed(JobPayload $payload, $failed = false);
 
     /**
+     * Remove a job from pending
+     * @param JobPayload $payload
+     * @return mixed
+     */
+    public function removeJobFromPending(JobPayload $payload);
+
+    /**
      * Delete the given monitored jobs by IDs.
      *
      * @param  array  $ids

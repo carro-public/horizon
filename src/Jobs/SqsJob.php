@@ -33,4 +33,13 @@ class SqsJob extends \Illuminate\Queue\Jobs\SqsJob
         $payloadBody['attempts'] = $this->attempts();
         return json_encode($payloadBody);
     }
+
+    /**
+     * Return whether we should shouldSkipMarkAsCompleted in horizon
+     * @return false
+     */
+    public function shouldSkipMarkAsCompleted()
+    {
+        return isset($this->payload()['shouldSkipMarkAsCompleted']) ?? false;
+    }
 }

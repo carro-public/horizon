@@ -477,6 +477,10 @@ class RedisJobRepository implements JobRepository
      */
     public function removeJobFromPending(JobPayload $payload)
     {
+        if ($payload->isRetry()) {
+            $this->updateRetryInformationOnParent($payload, false);
+        }
+
         $this->connection()->pipeline(function ($pipe) use ($payload) {
             $this->removeJobReference($pipe, 'pending_jobs', $payload);
         });

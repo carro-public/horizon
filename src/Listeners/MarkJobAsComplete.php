@@ -44,7 +44,7 @@ class MarkJobAsComplete
     public function handle(JobDeleted $event)
     {
         # If the job want to skip mark as completed, then just remove from pending_jobs
-        if (method_exists($event->job, 'shouldSkipMarkAsCompleted') && $event->job->shouldSkipMarkAsCompleted()) {
+        if (!$event->job->hasFailed() && method_exists($event->job, 'shouldSkipMarkAsCompleted') && $event->job->shouldSkipMarkAsCompleted()) {
             $this->jobs->removeJobFromPending($event->payload);
             return;
         }

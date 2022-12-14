@@ -483,6 +483,18 @@ class RedisJobRepository implements JobRepository
 
         $this->connection()->pipeline(function ($pipe) use ($payload) {
             $this->removeJobReference($pipe, 'pending_jobs', $payload);
+
+            $pipe->hmset(
+                $payload->id(), [
+                    'status' => 'completed',
+                    'completed_at' => str_replace(',', '.', microtime(true)),
+                    'dd_trace_id' => function_exists('\DDTrace\current_context')
+                        ? data_get(\DDTrace\current_context(), 'trace_id')
+                        : null
+                ]
+            );
+
+            $pipe->expireat($payload->id(), CarbonImmutable::now()->addMinutes($this->completedJobExpires)->getTimestamp());
         });
     }
 

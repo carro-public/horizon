@@ -40,6 +40,6 @@ class SqsJob extends \Illuminate\Queue\Jobs\SqsJob
      */
     public function shouldSkipMarkAsCompleted()
     {
-        return isset($this->payload()['shouldSkipMarkAsCompleted']) ?? false;
+        return $this->payload()['shouldSkipMarkAsCompleted'] ?? false;
     }
 }

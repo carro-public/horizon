@@ -86,11 +86,17 @@ class JobPayload implements ArrayAccess
      */
     public function prepare($job)
     {
+        if (!is_null($job)) {
+            $shouldSkipMarkAsCompleted = method_exists($job, 'shouldSkipMarkAsCompleted') ? $job->shouldSkipMarkAsCompleted() : false;
+        } else {
+            $shouldSkipMarkAsCompleted = $this->decoded['shouldSkipMarkAsCompleted'] ?? false;
+        }
+
         return $this->set([
             'type' => $this->determineType($job),
             'tags' => $this->determineTags($job),
             'pushedAt' => str_replace(',', '.', microtime(true)),
-            'shouldSkipMarkAsCompleted' => method_exists($job, 'shouldSkipMarkAsCompleted') ? $job->shouldSkipMarkAsCompleted() : false,
+            'shouldSkipMarkAsCompleted' => $shouldSkipMarkAsCompleted,
         ]);
     }
 

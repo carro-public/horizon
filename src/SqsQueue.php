@@ -61,7 +61,7 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        $payload = (app()->make(JobPayload::class, [$payload]))->prepare($this->lastPushed);
+        $payload = (app()->make(JobPayload::class, ['value' => $payload]))->prepare($this->lastPushed);
 
         parent::pushRaw($payload->value, $queue, $options);
 
@@ -98,7 +98,9 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
-        $payload = (app()->make(JobPayload::class, [$this->createPayload($job, $queue, $data)]))->prepare($job)->value;
+        $payload = (app()->make(JobPayload::class, [
+            'value' => $this->createPayload($job, $queue, $data)
+        ]))->prepare($job)->value;
 
         return tap($this->laterRaw($delay, $job, $payload, $queue), function () use ($payload, $queue) {
             $this->event($this->getQueue($queue), new JobPushed($payload));
@@ -144,8 +146,11 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
 
         if (! is_null($response['Messages']) && count($response['Messages']) > 0) {
             return app()->make(\Illuminate\Queue\Jobs\SqsJob::class, [
-                $this->container, $this->sqs, $response['Messages'][0],
-                $this->connectionName, $queue
+                'container' => $this->container,
+                'sqs' => $this->sqs,
+                'job' => $response['Messages'][0],
+                'connectionName' => $this->connectionName,
+                'queue' => $queue,
             ]);
         }
     }

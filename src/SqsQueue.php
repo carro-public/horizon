@@ -52,6 +52,27 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
     }
 
     /**
+     * Push a raw payload onto the queue (with delay support as options)
+     *
+     * @param  string  $payload
+     * @param  string|null  $queue
+     * @param  array  $options
+     * @return mixed
+     */
+    public function pushRawWithDelays($payload, $queue = null, array $options = [])
+    {
+        # Will add DelaySeconds parameter if $options['delay'] was specified
+        return $this->sqs->sendMessage(
+            [
+                'QueueUrl' => $this->getQueue($queue),
+                'MessageBody' => $payload,
+            ] + (isset($options['delay']) ? [
+                'DelaySeconds' => $this->secondsUntil($options['delay'])
+            ] : [])
+        )->get('MessageId');
+    }
+
+    /**
      * Push a raw payload onto the queue.
      *
      * @param  string  $payload
@@ -63,7 +84,7 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
     {
         $payload = (app()->make(JobPayload::class, ['value' => $payload]))->prepare($this->lastPushed);
 
-        parent::pushRaw($payload->value, $queue, $options);
+        $this->pushRawWithDelays($payload->value, $queue, $options);
 
         $this->event($this->getQueue($queue), new JobPushed($payload->value));
 
@@ -115,18 +136,17 @@ class SqsQueue extends \Illuminate\Queue\SqsQueue
      * @param $queue
      * @return mixed
      */
-    public function laterRaw($delay, $job, $payload, $queue = null) {
+    public function laterRaw($delay, $job, $payload, $queue = null)
+    {
         return $this->enqueueUsing(
             $job,
             $payload,
             $queue,
             $delay,
-            function ($payload, $queue, $delay) {
-                return $this->sqs->sendMessage([
-                    'QueueUrl' => $this->getQueue($queue),
-                    'MessageBody' => $payload,
-                    'DelaySeconds' => $this->secondsUntil($delay),
-                ])->get('MessageId');
+            function ($payload, $queue) use ($delay) {
+                return $this->pushRaw($payload, $queue, [
+                    'delay' => $delay,
+                ]);
             }
         );
     }
